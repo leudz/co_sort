@@ -59,10 +59,11 @@ impl std::ops::DerefMut for Permutation {
 
 /// If you want to implement CoSort on your type nothing simpler.
 /// ```
+/// # use co_sort::*;
 /// struct MyStruct(Vec<i32>);
 /// impl CoSort for MyStruct {
-///     fn co_sort_with(self, order: &[usize]) {
-///         self.0.co_sort(order);
+///     fn co_sort_with(mut self, order: &[usize]) {
+///         self.0.as_mut_slice().co_sort_with(order);
 ///     }
 /// }
 /// ```
@@ -126,10 +127,11 @@ macro_rules! impl_co_sort {
 
 /// If you want to implement CoSortStable on your type nothing simpler.
 /// ```
+/// # use co_sort::*;
 /// struct MyStruct(Vec<i32>);
 /// impl CoSortStable for MyStruct {
-///     fn co_sort_stable_with(self, order: &[usize]) {
-///         self.0.co_sort(order);
+///     fn co_sort_stable_with(mut self, order: &[usize]) {
+///         self.0.as_mut_slice().co_sort_with(order);
 ///     }
 /// }
 /// ```
