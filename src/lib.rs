@@ -1,4 +1,4 @@
-//! The simplest way to use this crate is the co_sort! macro, it will sort the first array and swap elements of the others in order to mimic the changes in the first array. \
+//! The simplest way to use this crate is the co_sort!and co_sort_stable! macros, it will sort the first array and swap elements of the others in order to mimic the changes in the first array. \
 //! Usefull when you have multiple slices with an implicit relation.
 //! ```
 //! #[macro_use] extern crate co_sort;
@@ -10,7 +10,7 @@
 //! assert_eq!(names, ["Astrid", "Bruno", "Diego", "Luciana", "Maia", "Thierry"]);
 //! assert_eq!(ages,  [   4,       47,      73,       21,       88,      62    ]);
 //! ```
-//! If you want more control you can use the functions co_sort and co_sort_stable, the macro uses co_sort internally. \
+//! If you want more control you can use the functions co_sort and co_sort_stable. \
 //! co_sort_stable allocates O(n) memory and requires the types to implement Clone while co_sort is in place and doesn't require any trait. \
 //! Performance wise co_sort scale well with the number of arrays but not with their size and co_sort_stable is the opposite.
 //! ```
@@ -206,6 +206,16 @@ macro_rules! co_sort {
     ];
 }
 
+#[macro_export]
+macro_rules! co_sort_stable {
+    ($slice: ident $(,)*) => [
+        $slice.sort();
+    ];
+    ($slice1: ident $(, $slice: expr)+) => [
+        Permutation::from(&$slice1[..]).co_sort_stable((&mut $slice1[..], $(&mut $slice[..]),+))
+    ];
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -242,7 +252,16 @@ mod tests {
         let mut order = [0, 5, 2, 4, 3, 1];
         let mut slice1 = ['a', 'b', 'c', 'd', 'e', 'f'];
         let mut slice2 = [147, 6478, 555, 264, 8, 52];
-        co_sort![order, slice1[..], slice2[..]];
+        co_sort![order, slice1, slice2];
+        assert_eq!(slice1, ['a', 'f', 'c', 'e', 'd', 'b']);
+        assert_eq!(slice2, [147, 52, 555, 8, 264, 6478]);
+    }
+    #[test]
+    fn macro_test_stable() {
+        let mut order = [0, 5, 2, 4, 3, 1];
+        let mut slice1 = ['a', 'b', 'c', 'd', 'e', 'f'];
+        let mut slice2 = [147, 6478, 555, 264, 8, 52];
+        co_sort_stable![order, slice1, slice2];
         assert_eq!(slice1, ['a', 'f', 'c', 'e', 'd', 'b']);
         assert_eq!(slice2, [147, 52, 555, 8, 264, 6478]);
     }
