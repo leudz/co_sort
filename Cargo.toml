@@ -1,0 +1,18 @@
+[package]
+name = "co_sort"
+version = "0.1.0"
+authors = ["leudz <dylan.ancel@gmail.com>"]
+edition = "2018"
+license = "MIT"
+repository = "https://github.com/leudz/co_sort"
+
+[dependencies]
+
+
+[dev-dependencies]
+criterion = "0.2.10"
+rand = "0.6.5"
+
+[[bench]]
+name = "co_sort"
+harness = false
