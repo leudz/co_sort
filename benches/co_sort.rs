@@ -12,12 +12,12 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("sort small", |b| {
         let order = Permutation::from([0, 7, 5, 6, 4, 2, 1, 3].as_ref());
         let mut slice = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-        b.iter(|| order.co_sort(&mut slice[..]))
+        b.iter(|| order.co_sort(slice.as_mut()))
     });
     c.bench_function("sort stable small", |b| {
         let order = Permutation::from([0, 7, 5, 6, 4, 2, 1, 3].as_ref());
         let mut slice = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-        b.iter(|| order.co_sort_stable(&mut slice[..]))
+        b.iter(|| order.co_sort_stable(slice.as_mut()))
     });
     c.bench_function("sort small lots", |b| {
         let order = Permutation::from([0, 7, 5, 6, 4, 2, 1, 3].as_ref());
@@ -33,16 +33,16 @@ fn criterion_benchmark(c: &mut Criterion) {
         let mut slice9 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         b.iter(|| {
             order.co_sort((
-                &mut slice[..],
-                &mut slice1[..],
-                &mut slice2[..],
-                &mut slice3[..],
-                &mut slice4[..],
-                &mut slice5[..],
-                &mut slice6[..],
-                &mut slice7[..],
-                &mut slice8[..],
-                &mut slice9[..],
+                slice.as_mut(),
+                slice1.as_mut(),
+                slice2.as_mut(),
+                slice3.as_mut(),
+                slice4.as_mut(),
+                slice5.as_mut(),
+                slice6.as_mut(),
+                slice7.as_mut(),
+                slice8.as_mut(),
+                slice9.as_mut(),
             ))
         })
     });
@@ -60,16 +60,16 @@ fn criterion_benchmark(c: &mut Criterion) {
         let mut slice9 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         b.iter(|| {
             order.co_sort_stable((
-                &mut slice[..],
-                &mut slice1[..],
-                &mut slice2[..],
-                &mut slice3[..],
-                &mut slice4[..],
-                &mut slice5[..],
-                &mut slice6[..],
-                &mut slice7[..],
-                &mut slice8[..],
-                &mut slice9[..],
+                slice.as_mut(),
+                slice1.as_mut(),
+                slice2.as_mut(),
+                slice3.as_mut(),
+                slice4.as_mut(),
+                slice5.as_mut(),
+                slice6.as_mut(),
+                slice7.as_mut(),
+                slice8.as_mut(),
+                slice9.as_mut(),
             ))
         })
     });
@@ -78,14 +78,14 @@ fn criterion_benchmark(c: &mut Criterion) {
         slice1.shuffle(&mut thread_rng());
         let order = Permutation::from(slice1.as_ref());
         let mut slice2 = vec!['a'; 100];
-        b.iter(|| order.co_sort((&mut slice1[..], &mut slice2[..])))
+        b.iter(|| order.co_sort((slice1.as_mut(), slice2.as_mut())))
     });
     c.bench_function("sort stable medium", |b| {
         let mut slice1 = (0..100).collect::<Vec<_>>();
         slice1.shuffle(&mut thread_rng());
         let order = Permutation::from(slice1.as_ref());
         let mut slice2 = vec!['a'; 100];
-        b.iter(|| order.co_sort_stable((&mut slice1[..], &mut slice2[..])))
+        b.iter(|| order.co_sort_stable((slice1.as_mut(), slice2.as_mut())))
     });
     c.bench_function("sort medium lots", |b| {
         let mut slice = (0..100).collect::<Vec<_>>();
@@ -102,15 +102,15 @@ fn criterion_benchmark(c: &mut Criterion) {
         let mut slice9 = vec!['a'; 100];
         b.iter(|| {
             order.co_sort((
-                &mut slice1[..],
-                &mut slice2[..],
-                &mut slice3[..],
-                &mut slice4[..],
-                &mut slice5[..],
-                &mut slice6[..],
-                &mut slice7[..],
-                &mut slice8[..],
-                &mut slice9[..],
+                slice1.as_mut(),
+                slice2.as_mut(),
+                slice3.as_mut(),
+                slice4.as_mut(),
+                slice5.as_mut(),
+                slice6.as_mut(),
+                slice7.as_mut(),
+                slice8.as_mut(),
+                slice9.as_mut(),
             ))
         })
     });
@@ -129,15 +129,15 @@ fn criterion_benchmark(c: &mut Criterion) {
         let mut slice9 = vec!['a'; 100];
         b.iter(|| {
             order.co_sort_stable((
-                &mut slice1[..],
-                &mut slice2[..],
-                &mut slice3[..],
-                &mut slice4[..],
-                &mut slice5[..],
-                &mut slice6[..],
-                &mut slice7[..],
-                &mut slice8[..],
-                &mut slice9[..],
+                slice1.as_mut(),
+                slice2.as_mut(),
+                slice3.as_mut(),
+                slice4.as_mut(),
+                slice5.as_mut(),
+                slice6.as_mut(),
+                slice7.as_mut(),
+                slice8.as_mut(),
+                slice9.as_mut(),
             ))
         })
     });
@@ -146,14 +146,14 @@ fn criterion_benchmark(c: &mut Criterion) {
         slice1.shuffle(&mut thread_rng());
         let order = Permutation::from(slice1.as_ref());
         let mut slice2 = vec!['a'; 10000];
-        b.iter(|| order.co_sort((&mut slice1[..], &mut slice2[..])))
+        b.iter(|| order.co_sort((slice1.as_mut(), slice2.as_mut())))
     });
     c.bench_function("sort stable big", |b| {
         let mut slice1 = (0..10000).collect::<Vec<_>>();
         slice1.shuffle(&mut thread_rng());
         let order = Permutation::from(slice1.as_ref());
         let mut slice2 = vec!['a'; 10000];
-        b.iter(|| order.co_sort_stable((&mut slice1[..], &mut slice2[..])))
+        b.iter(|| order.co_sort_stable((slice1.as_mut(), slice2.as_mut())))
     });
     c.bench_function("sort big lots", |b| {
         let mut slice = (0..10000).collect::<Vec<_>>();
@@ -170,15 +170,15 @@ fn criterion_benchmark(c: &mut Criterion) {
         let mut slice9 = vec!['a'; 10000];
         b.iter(|| {
             order.co_sort((
-                &mut slice1[..],
-                &mut slice2[..],
-                &mut slice3[..],
-                &mut slice4[..],
-                &mut slice5[..],
-                &mut slice6[..],
-                &mut slice7[..],
-                &mut slice8[..],
-                &mut slice9[..],
+                slice1.as_mut(),
+                slice2.as_mut(),
+                slice3.as_mut(),
+                slice4.as_mut(),
+                slice5.as_mut(),
+                slice6.as_mut(),
+                slice7.as_mut(),
+                slice8.as_mut(),
+                slice9.as_mut(),
             ))
         })
     });
@@ -197,15 +197,15 @@ fn criterion_benchmark(c: &mut Criterion) {
         let mut slice9 = vec!['a'; 10000];
         b.iter(|| {
             order.co_sort_stable((
-                &mut slice1[..],
-                &mut slice2[..],
-                &mut slice3[..],
-                &mut slice4[..],
-                &mut slice5[..],
-                &mut slice6[..],
-                &mut slice7[..],
-                &mut slice8[..],
-                &mut slice9[..],
+                slice1.as_mut(),
+                slice2.as_mut(),
+                slice3.as_mut(),
+                slice4.as_mut(),
+                slice5.as_mut(),
+                slice6.as_mut(),
+                slice7.as_mut(),
+                slice8.as_mut(),
+                slice9.as_mut(),
             ))
         })
     });

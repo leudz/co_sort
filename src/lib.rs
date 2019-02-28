@@ -1,8 +1,8 @@
 //! The simplest way to use this crate is the co_sort! macro, it will sort the first array and swap elements of the others in order to mimic the changes in the first array. \
 //! Usefull when you have multiple slices with an implicit relation.
 //! ```
-//! # #[macro_use] extern crate co_sort;
-//! # use co_sort::*;
+//! #[macro_use] extern crate co_sort;
+//! use co_sort::*;
 //! let mut names = ["Diego", "Maia", "Luciana", "Bruno", "Astrid", "Thierry"];
 //! let mut ages =  [  73,      88,      21,        47,      4,        62    ];
 //! // We want to sort the names but keep the ages synced
@@ -10,24 +10,31 @@
 //! assert_eq!(names, ["Astrid", "Bruno", "Diego", "Luciana", "Maia", "Thierry"]);
 //! assert_eq!(ages,  [   4,       47,      73,       21,       88,      62    ]);
 //! ```
-//! If you want more control and performance you can use two functions co_sort and co_sort_stable, the macro uses co_sort internally. \
-//! co_sort_stable allocates O(n) memory while co_sort is in place. \
+//! If you want more control you can use the functions co_sort and co_sort_stable, the macro uses co_sort internally. \
+//! co_sort_stable allocates O(n) memory and requires the types to implement Clone while co_sort is in place and doesn't require any trait. \
 //! Performance wise co_sort scale well with the number of arrays but not with their size and co_sort_stable is the opposite.
 //! ```
-//! # #[macro_use] extern crate co_sort;
 //! # use co_sort::*;
 //! let mut names = ["Diego", "Maia", "Luciana", "Bruno", "Astrid", "Thierry"];
 //! let mut ages =  [  73,      88,      21,       47,       4,        62    ];
 //! let permutation = Permutation::from(names.as_ref());
 //! permutation.co_sort((names.as_mut(), ages.as_mut()));
-//! // or
-//! // permutation.co_sort_stable((names, ages));
+//! // or permutation.co_sort_stable((names.as_mut(), ages.as_mut()));
 //! assert_eq!(names, ["Astrid", "Bruno", "Diego", "Luciana", "Maia", "Thierry"]);
 //! assert_eq!(ages,  [   4,       47,      73,       21,       88,      62    ]);
 //! ```
 
 #[derive(Debug, Clone)]
 pub struct Permutation(Vec<usize>);
+
+impl Permutation {
+    pub fn co_sort<T: CoSort>(&self, to_sort: T) {
+        to_sort.co_sort_with(&self.0);
+    }
+    pub fn co_sort_stable<T: CoSortStable>(&self, to_sort: T) {
+        to_sort.co_sort_stable_with(&self.0);
+    }
+}
 
 impl<T: Ord> From<&[T]> for Permutation {
     fn from(slice: &[T]) -> Permutation {
@@ -50,22 +57,21 @@ impl std::ops::DerefMut for Permutation {
     }
 }
 
-impl<U: CoSortIn> CoSort<U> for Permutation {
-    fn co_sort(&self, others: U) {
-        others.co_sort_in(&self.0);
-    }
+/// If you want to implement CoSort on your type nothing simpler.
+/// ```
+/// struct MyStruct(Vec<i32>);
+/// impl CoSort for MyStruct {
+///     fn co_sort_with(self, order: &[usize]) {
+///         self.0.co_sort(order);
+///     }
+/// }
+/// ```
+pub trait CoSort {
+    fn co_sort_with(self, order: &[usize]);
 }
 
-pub trait CoSort<U: CoSortIn> {
-    fn co_sort(&self, others: U);
-}
-
-pub trait CoSortIn {
-    fn co_sort_in(self, order: &[usize]);
-}
-
-impl<U> CoSortIn for &mut [U] {
-    fn co_sort_in(self, order: &[usize]) {
+impl<T> CoSort for &mut [T] {
+    fn co_sort_with(self, order: &[usize]) {
         assert_eq!(self.len(), order.len());
         let mut pos;
         for i in 0..order.len() {
@@ -78,8 +84,8 @@ impl<U> CoSortIn for &mut [U] {
     }
 }
 
-impl<U> CoSortIn for (&mut [U],) {
-    fn co_sort_in(self, order: &[usize]) {
+impl<T> CoSort for (&mut [T],) {
+    fn co_sort_with(self, order: &[usize]) {
         assert_eq!(self.0.len(), order.len());
         let mut pos;
         for i in 0..order.len() {
@@ -94,8 +100,8 @@ impl<U> CoSortIn for (&mut [U],) {
 
 macro_rules! impl_co_sort {
     ($(($type: ident, $index: tt)),+; ($type1: ident, $index1: tt), $($tail: tt)*) => [
-        impl<$type1, $($type),+> CoSortIn for (&mut [$type1], $(&mut [$type]),+) {
-            fn co_sort_in(self, order: &[usize]) {
+        impl<$type1, $($type),+> CoSort for (&mut [$type1], $(&mut [$type]),+) {
+            fn co_sort_with(self, order: &[usize]) {
                 assert_eq!(order.len(), self.$index1.len());
                 $(
                     assert_eq!(order.len(), self.$index.len());
@@ -118,22 +124,21 @@ macro_rules! impl_co_sort {
     ($(($type: ident, $index: tt)),+;) => [];
 }
 
-impl<U: CoSortStableIn> CoSortStable<U> for Permutation {
-    fn co_sort_stable(&self, others: U) {
-        others.co_sort_stable_in(&self.0);
-    }
+/// If you want to implement CoSortStable on your type nothing simpler.
+/// ```
+/// struct MyStruct(Vec<i32>);
+/// impl CoSortStable for MyStruct {
+///     fn co_sort_stable_with(self, order: &[usize]) {
+///         self.0.co_sort(order);
+///     }
+/// }
+/// ```
+pub trait CoSortStable {
+    fn co_sort_stable_with(self, order: &[usize]);
 }
 
-pub trait CoSortStable<U: CoSortStableIn> {
-    fn co_sort_stable(&self, others: U);
-}
-
-pub trait CoSortStableIn {
-    fn co_sort_stable_in(self, order: &[usize]);
-}
-
-impl<U: Clone> CoSortStableIn for &mut [U] {
-    fn co_sort_stable_in(self, order: &[usize]) {
+impl<U: Clone> CoSortStable for &mut [U] {
+    fn co_sort_stable_with(self, order: &[usize]) {
         assert_eq!(order.len(), self.len());
         let copy = (0..self.len())
             .map(|i| unsafe { self.get_unchecked(*order.get_unchecked(i)) }.clone())
@@ -144,8 +149,8 @@ impl<U: Clone> CoSortStableIn for &mut [U] {
     }
 }
 
-impl<U: Clone> CoSortStableIn for (&mut [U],) {
-    fn co_sort_stable_in(self, order: &[usize]) {
+impl<U: Clone> CoSortStable for (&mut [U],) {
+    fn co_sort_stable_with(self, order: &[usize]) {
         assert_eq!(order.len(), self.0.len());
         let copy = (0..self.0.len())
             .map(|i| unsafe { self.0.get_unchecked(*order.get_unchecked(i)) }.clone())
@@ -158,8 +163,8 @@ impl<U: Clone> CoSortStableIn for (&mut [U],) {
 
 macro_rules! impl_co_sort_stable {
     ($(($type: ident, $index: tt)),+; ($type1: ident, $index1: tt), $($tail: tt)*) => [
-        impl<$($type: Clone,)+ $type1: Clone> CoSortStableIn for ($(&mut [$type],)+ &mut [$type1]) {
-            fn co_sort_stable_in(self, order: &[usize]) {
+        impl<$($type: Clone,)+ $type1: Clone> CoSortStable for ($(&mut [$type],)+ &mut [$type1]) {
+            fn co_sort_stable_with(self, order: &[usize]) {
                 assert_eq!(order.len(), self.$index1.len());
                 $(
                     assert_eq!(order.len(), self.$index.len());
