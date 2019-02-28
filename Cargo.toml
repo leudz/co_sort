@@ -5,6 +5,8 @@ authors = ["leudz <dylan.ancel@gmail.com>"]
 edition = "2018"
 license = "MIT"
 repository = "https://github.com/leudz/co_sort"
+keywords = ["sort", "permutation"]
+description = "Sort arrays given a permutation"
 
 [dependencies]
 
