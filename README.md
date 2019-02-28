@@ -3,6 +3,8 @@ Sort multiple arrays given a permutation.
 
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE-MIT)
 [![LICENSE](https://img.shields.io/badge/license-apache-blue.svg)](LICENSE-APACHE)
+[![Crates.io](https://img.shields.io/crates/v/co_sort.svg)](https://crates.io/crates/co_sort)
+[![Documentation](https://docs.rs/co_sort/badge.svg)](https://docs.rs/co_sort)
 
 The simplest way to use this crate is the co_sort! macro, it will sort the first array and swap elements of the others in order to mimic the changes in the first array. \
 Usefull when you have multiple slices with an implicit relation.
