@@ -1,4 +1,4 @@
-//! The simplest way to use this crate is the co_sort!and co_sort_stable! macros, it will sort the first array and swap elements of the others in order to mimic the changes in the first array. \
+//! The simplest way to use this crate is the co_sort! and co_sort_stable! macros, it will sort the first array and swap elements of the others in order to mimic the changes in the first array. \
 //! Usefull when you have multiple slices with an implicit relation.
 //! ```
 //! #[macro_use] extern crate co_sort;
